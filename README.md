@@ -1,178 +1,246 @@
 # Insurance Fraud Claims Detection Engine
 
+[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey)](https://flask.palletsprojects.com)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.x-orange)](https://scikit-learn.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+> An end-to-end Machine Learning prototype that assesses the **fraud risk** of auto insurance claims using a trained Random Forest classifier, served via a modern Flask web application.
+
+---
+
 ## 1. Project Overview
-The Insurance Fraud Claims Detection Engine is an end-to-end Machine Learning prototype designed to assess the risk of fraud in auto insurance claims. By analyzing historical claim data, the system flags suspicious claims as High, Medium, or Low Risk, acting as an automated decision-support tool for human investigators.
+
+The Insurance Fraud Claims Detection Engine is a complete ML project that:
+
+- Loads and analyses **1,000 historical auto insurance claims**.
+- Trains and compares **4 classification models** (Logistic Regression, Decision Tree, Random Forest, Gradient Boosting).
+- Selects the best model based on **Recall and F1-score** — metrics appropriate for fraud detection.
+- Exposes a professional **4-step web form** where a claim can be assessed and a risk score returned in real time.
+
+---
 
 ## 2. Problem Statement
-Insurance fraud costs the industry billions of dollars annually, leading to increased premiums for honest customers. Manual investigation of every single claim is slow, expensive, and inefficient. A data-driven approach is required to prioritize which claims need immediate investigation.
+
+Insurance fraud costs the global industry **billions of dollars annually**, raising premiums for honest customers. Manual review of every claim is slow and error-prone. This project demonstrates how a machine learning system can automatically flag suspicious claims for priority investigation.
+
+---
 
 ## 3. Objectives
-* Automate the initial screening of auto insurance claims.
-* Reduce false positives to ensure investigators only spend time on highly suspicious claims.
-* Maintain a high recall rate to avoid missing actual fraudulent claims.
-* Provide a modern, user-friendly web interface for claim intake.
 
-## 4. Proposed Solution
-We propose a Machine Learning-based classification pipeline. The system ingests claim details (policy info, incident severity, claim amounts), preprocesses the data using a Scikit-Learn pipeline, and evaluates it using a trained Random Forest classifier. A Flask web application provides the frontend interface.
+- Automate the initial screening of auto insurance claims.
+- Maximise **Recall** — catching as many real fraud cases as possible.
+- Provide a clean, user-friendly web interface for non-technical investigators.
+- Save and serve the model as a production-ready Flask API.
+
+---
+
+## 4. Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Language | Python 3.11 |
+| Data Processing | pandas, NumPy |
+| Machine Learning | scikit-learn, joblib |
+| Visualisation | matplotlib, seaborn |
+| Web Framework | Flask |
+| Frontend | HTML5, Vanilla CSS (Glassmorphism / Dark Mode) |
+
+---
 
 ## 5. Dataset
-* **Source:** Auto Insurance Claims Data (Synthetic/Historical combination)
-* **Total Records:** 1,000
-* **Features Used:** 34 (after dropping identifiers and empty columns)
-* **Target Variable:** `fraud_reported` ('Y' or 'N')
-* **Class Distribution:** 75.3% Non-Fraud, 24.7% Fraud (Imbalanced)
 
-## 6. Technology Stack
-* **Language:** Python 3
-* **Data Processing:** pandas, NumPy
-* **Machine Learning:** scikit-learn, joblib
-* **Data Visualization:** matplotlib, seaborn
-* **Web Framework:** Flask
-* **Frontend:** HTML5, CSS3 (Modern Glassmorphism Design)
+| Attribute | Value |
+|---|---|
+| Source | Auto Insurance Claims (Synthetic/Historical) |
+| Total Records | 1,000 |
+| Raw Features | 40 |
+| Features Used by Model | 22 (user input) + 11 (statistical defaults) = 33 |
+| Target Variable | `fraud_reported` (Y = Fraud, N = Not Fraud) |
+| Class Distribution | 75.3% Non-Fraud / 24.7% Fraud |
 
-## 7. System Architecture
-```text
-User / Claim Data 
-       ↓ 
-Input Validation 
-       ↓ 
-Preprocessing Pipeline (Imputation, Scaling, Encoding)
-       ↓ 
-Trained ML Model (Random Forest)
-       ↓ 
-Fraud Probability / Class Prediction
-       ↓ 
-Risk Interpretation (Low / Medium / High Risk)
-       ↓ 
-Flask Web Application 
-       ↓ 
-User Result + Basic Explanation
+---
+
+## 6. System Architecture
+
+```
+User / Claim Data
+       ↓
+4-Step Web Form (Flask)
+       ↓
+Input Validation + Statistical Defaults
+       ↓
+Preprocessing Pipeline (Imputation → Scaling → OneHotEncoding)
+       ↓
+Random Forest Classifier (150 trees)
+       ↓
+Fraud Probability Score
+       ↓
+Risk Level: LOW / MEDIUM / HIGH
+       ↓
+Result Page + Feature Influence Bars
 ```
 
-## 8. Development Workflow
-```text
-Dataset
-   ↓
-EDA (Exploratory Data Analysis)
-   ↓
-Preprocessing (Imputation & Encoding)
-   ↓
-Feature Engineering / Dropping Identifiers
-   ↓
-Model Training (LR, DT, RF, GB)
-   ↓
-Evaluation (Accuracy, Precision, Recall, F1)
-   ↓
-Best Model Selection
-   ↓
-Flask Prototype Development
-   ↓
-Testing (TC01-TC05)
-   ↓
-GitHub Version Control
-   ↓
-Free Deployment
-```
+---
 
-## 9. Folder Structure
-```text
+## 7. Project Structure
+
+```
 insurance-fraud-detection/
+│
+├── app/
+│   ├── app.py                  # Flask application (routes, prediction logic)
+│   ├── static/
+│   │   └── style.css           # Dark glassmorphism UI design
+│   └── templates/
+│       ├── index.html          # Dashboard / landing page
+│       ├── assess.html         # 4-step claim input form
+│       └── result.html         # Fraud risk result page
+│
 ├── data/
 │   ├── raw/
-│   └── processed/
-├── notebooks/
-│   └── insurance_fraud_analysis.ipynb
-├── src/
-│   ├── preprocessing.py
-│   ├── train_model.py
-│   ├── save_final_model.py
-│   ├── explain_model.py
-│   └── eda.py
+│   │   └── insurance_claims.csv  # Original dataset (1,000 records, 40 columns)
+│   └── processed/              # Reserved for processed data exports
+│
 ├── model/
-│   ├── model.pkl
-│   ├── preprocessing.pkl
-│   └── feature_names.pkl
-├── app/
-│   ├── app.py
-│   ├── templates/
-│   │   ├── index.html
-│   │   └── result.html
-│   └── static/
-│       └── style.css
-├── docs/
-│   ├── screenshots/
-│   ├── figures/
-│   └── case-study/
+│   ├── model.pkl               # Trained Random Forest model
+│   ├── preprocessing.pkl       # Fitted ColumnTransformer pipeline
+│   ├── model_columns.pkl       # Ordered column list (33 features)
+│   ├── feature_names.pkl       # Encoded feature names (157 after OHE)
+│   └── hidden_defaults.pkl     # Statistical defaults for 11 background features
+│
+├── notebooks/
+│   └── insurance_fraud_analysis.ipynb   # Complete ML analysis (55 cells, 8 figures)
+│
+├── src/
+│   ├── preprocessing.py        # Reusable preprocessing functions (used by save_final_model.py)
+│   └── save_final_model.py     # Standalone script to retrain and save model artifacts
+│
 ├── tests/
-│   └── test_app.py
-├── requirements.txt
-├── README.md
+│   └── test_app.py             # Flask application tests (TC01-TC05)
+│
 ├── .gitignore
-└── LICENSE
+├── LICENSE
+├── README.md
+└── requirements.txt
 ```
 
+---
+
+## 8. Model Results
+
+Four models were trained and compared. **Random Forest** was selected.
+
+| Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
+|---|---|---|---|---|---|
+| **Random Forest ✓** | **83.5%** | **62.9%** | **79.6%** | **70.3%** | **83.2%** |
+| Logistic Regression | 82.5% | 63.0% | 69.4% | 66.0% | 82.9% |
+| Decision Tree | 81.5% | 60.3% | 71.4% | 65.4% | 74.5% |
+| Gradient Boosting | 80.0% | 58.8% | 61.2% | 60.0% | 84.5% |
+
+> **Why Recall over Accuracy?** With 75% non-fraud claims, a naive model achieves 75% accuracy by predicting everything as non-fraud — but catches 0% of real fraud. Recall (79.6%) ensures the majority of actual fraud cases are flagged for investigation.
+
+---
+
+## 9. Notebook
+
+The complete ML analysis lives in:
+
+```
+notebooks/insurance_fraud_analysis.ipynb
+```
+
+**55 cells | 8 embedded figures | all outputs pre-executed**
+
+Sections:
+1. Problem Statement
+2. Objectives
+3. Dataset Description
+4. Import Libraries
+5. Load Dataset
+6. Initial Data Inspection (shape, dtypes, missing values, duplicates)
+7. Exploratory Data Analysis (7 visualisations)
+8. Feature Audit
+9. Feature Selection
+10. Data Preprocessing
+11. Train / Test Split
+12. Model Training (4 models)
+13. Model Comparison (comparison table)
+14. Confusion Matrices (all 4 models)
+15. ROC-AUC Curves (all 4 models)
+16. Feature Importance (top 15 features)
+17. Final Model Selection (justified rationale)
+18. Final Model Evaluation
+19. Save Final Model
+20. Sample End-to-End Prediction
+21. Conclusion
+
+---
+
 ## 10. Installation
-1. Clone the repository:
-   ```bash
-   git clone <YOUR_GITHUB_URL>
-   cd insurance-fraud-detection
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+
+```bash
+# 1. Clone the repository
+git clone <YOUR_GITHUB_URL>
+cd insurance-fraud-detection
+
+# 2. Create and activate virtual environment
+python -m venv .venv
+.venv\Scripts\activate        # Windows
+# source .venv/bin/activate   # macOS / Linux
+
+# 3. Install dependencies
+pip install -r requirements.txt
+```
+
+---
 
 ## 11. Running Locally
-1. Start the Flask server:
-   ```bash
-   python app/app.py
-   ```
-2. Open your browser and navigate to: `http://127.0.0.1:5000`
 
-## 12. Model Results
-We evaluated 4 models. The **Random Forest** classifier was selected for its superior balance of Precision and Recall.
+```bash
+python app/app.py
+```
 
-* **Accuracy:** 84.50%
-* **Precision:** 65.00%
-* **Recall:** 79.59%
-* **F1-Score:** 71.56%
-* **ROC-AUC:** 84.01%
+Navigate to: **http://127.0.0.1:5000**
 
-*Note: Recall (79.5%) is prioritized to ensure the majority of actual fraud cases are flagged.*
+---
 
-## 13. Screenshots
+## 12. How to Retrain the Model
 
-### Home Page
-![Home](docs/screenshots/home_page.png)
+The notebook is the authoritative training source. To retrain without opening Jupyter:
 
-### Fraud Prediction
-![Prediction](docs/screenshots/fraud_prediction.png)
+```bash
+python src/save_final_model.py
+```
 
-### Model Insights
-![Insights](docs/screenshots/model_insights.png)
+This re-runs the full preprocessing + training pipeline and overwrites all artifacts in `model/`.
 
-*(Note: Add the screenshots to `docs/screenshots/` to display them here.)*
+---
 
-## 14. GitHub Repository
-**URL:** [Pending Phase 11]
+## 13. Limitations
 
-## 15. Live Demo
-**URL:** [Pending Phase 12]
+- Trained on a synthetic/historical dataset; may not generalise to all real-world markets.
+- Self-reported incident details (e.g., severity) can be falsified by fraudsters.
+- Feature importance shows statistical correlation, not causation.
+- The current prototype does not support real-time data feeds or external API integration.
 
-## 16. Limitations
-* **Imbalanced Data:** While handled via class weights, extreme edge cases may still lean toward the majority class.
-* **Feature Dependency:** The model relies heavily on self-reported inputs (like incident severity) which can be lied about by fraudsters.
-* **Geographic Limits:** The training data is limited to a few states (OH, IN, IL). It may not generalize well to other regions.
+---
 
-## 17. Future Enhancements
-* Incorporate image processing (Computer Vision) to analyze car damage photos automatically.
-* Add NLP (Natural Language Processing) to analyze police report text.
-* Integrate an API to pull real-time weather data at the time of the incident to verify road conditions.
+## 14. Future Enhancements
 
-## 18. Disclaimer
-This is an academic project prototype. The prediction represents statistical risk modeling and is designed as a decision-support tool, not as absolute proof of fraud. It should never be used as the sole reason to deny a claim without human investigation.
+- Computer Vision to analyse submitted car damage photos automatically.
+- NLP to extract structured signals from free-text police/incident reports.
+- Explainability layer using SHAP values for per-prediction feature attribution.
+- User authentication and audit logging for production deployment.
+
+---
+
+## 15. Disclaimer
+
+> This is an academic project prototype. All predictions represent statistical risk modelling and are intended as a **decision-support tool** for human investigators. A high-risk prediction does **not** prove insurance fraud and must never be used as the sole reason to deny a claim without proper human review.
+
+---
+
+## 16. License
+
+MIT License — see [LICENSE](LICENSE) for details.

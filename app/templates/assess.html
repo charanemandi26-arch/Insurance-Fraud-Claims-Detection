@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Assess Claim | Fraud Engine</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/" class="nav-brand">
+    <span class="shield">🛡</span>
+    <span>Fraud Claims Engine</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Dashboard</a></li>
+    <li><a href="/assess" class="active">Assess Claim</a></li>
+  </ul>
+</nav>
+
+<div class="container" style="max-width:780px;">
+
+  <div style="margin-bottom:2rem;">
+    <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:.4rem;">New Claim Assessment</h1>
+    <p style="color:var(--text-muted);font-size:.95rem;">
+      Provide the claim details below to estimate potential fraud risk.
+    </p>
+  </div>
+
+  <!-- Step tabs -->
+  <div class="stepper-header" id="stepTabs">
+    <div class="step-tab active" data-step="1">
+      <span class="step-num">1</span><span class="step-label">Claim Details</span>
+    </div>
+    <div class="step-tab" data-step="2">
+      <span class="step-num">2</span><span class="step-label">Policy &amp; Customer</span>
+    </div>
+    <div class="step-tab" data-step="3">
+      <span class="step-num">3</span><span class="step-label">Incident Info</span>
+    </div>
+    <div class="step-tab" data-step="4">
+      <span class="step-num">4</span><span class="step-label">Review</span>
+    </div>
+  </div>
+
+  <form id="assessForm" action="/predict" method="POST" class="card" novalidate>
+
+    <!-- ── STEP 1: CLAIM DETAILS ──────────────────────────────────────────── -->
+    <div class="step-panel active" id="step1">
+      <p class="step-indicator">STEP 1 OF 4 — Claim Details</p>
+
+      <div class="section-divider">Claim Amounts</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Total Claim Amount ($) <span>*required</span></label>
+          <input type="number" name="total_claim_amount" id="total_claim_amount"
+                 placeholder="e.g. 52 000" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Injury Claim ($) <span>*required</span></label>
+          <input type="number" name="injury_claim" id="injury_claim"
+                 placeholder="e.g. 6 500" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Property Claim ($) <span>*required</span></label>
+          <input type="number" name="property_claim" id="property_claim"
+                 placeholder="e.g. 13 000" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vehicle Claim ($) <span>*required</span></label>
+          <input type="number" name="vehicle_claim" id="vehicle_claim"
+                 placeholder="e.g. 52 000" min="0" required>
+        </div>
+      </div>
+
+      <div class="section-divider">Accident Type &amp; Severity</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Accident Type <span>*required</span></label>
+          <select name="incident_type" id="incident_type" required>
+            <option value="" disabled selected>Select type</option>
+            <option value="Single Vehicle Collision">Single Vehicle Collision</option>
+            <option value="Multi-vehicle Collision">Multi-vehicle Collision</option>
+            <option value="Vehicle Theft">Vehicle Theft</option>
+            <option value="Parked Car">Parked Car</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Incident Severity <span>*required</span></label>
+          <select name="incident_severity" id="incident_severity" required>
+            <option value="" disabled selected>Select severity</option>
+            <option value="Trivial Damage">Trivial Damage</option>
+            <option value="Minor Damage">Minor Damage</option>
+            <option value="Major Damage">Major Damage</option>
+            <option value="Total Loss">Total Loss</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Collision Type</label>
+          <select name="collision_type" id="collision_type">
+            <option value="?">Unknown / N/A</option>
+            <option value="Front Collision">Front Collision</option>
+            <option value="Rear Collision">Rear Collision</option>
+            <option value="Side Collision">Side Collision</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Incident Hour (0–23) <span>*required</span></label>
+          <input type="number" name="incident_hour_of_the_day" id="incident_hour_of_the_day"
+                 placeholder="e.g. 14" min="0" max="23" required>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <span class="step-indicator">Fill in the claim amounts and accident type to continue.</span>
+        <button type="button" class="btn btn-primary" onclick="goStep(2)">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: POLICY & CUSTOMER ──────────────────────────────────────── -->
+    <div class="step-panel" id="step2">
+      <p class="step-indicator">STEP 2 OF 4 — Policy &amp; Customer</p>
+
+      <div class="section-divider">Customer Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Customer Age <span>*required</span></label>
+          <input type="number" name="age" id="age" placeholder="e.g. 42" min="18" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Months as Customer <span>*required</span></label>
+          <input type="number" name="months_as_customer" id="months_as_customer"
+                 placeholder="e.g. 228" min="0" required>
+        </div>
+      </div>
+
+      <div class="section-divider">Policy Details</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Coverage Limit (CSL) <span>*required</span></label>
+          <select name="policy_csl" id="policy_csl" required>
+            <option value="" disabled selected>Select coverage</option>
+            <option value="100/300">100/300 — Standard</option>
+            <option value="250/500">250/500 — Enhanced</option>
+            <option value="500/1000">500/1000 — Premium</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Annual Premium ($) <span>*required</span></label>
+          <input type="number" step="0.01" name="policy_annual_premium" id="policy_annual_premium"
+                 placeholder="e.g. 1406.91" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Policy Deductible ($) <span>*required</span></label>
+          <select name="policy_deductable" id="policy_deductable" required>
+            <option value="" disabled selected>Select deductible</option>
+            <option value="500">$500</option>
+            <option value="1000">$1,000</option>
+            <option value="2000">$2,000</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Umbrella Limit ($) <span>*required</span></label>
+          <input type="number" name="umbrella_limit" id="umbrella_limit"
+                 placeholder="e.g. 0 or 5000000" min="0" required>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button type="button" class="btn btn-secondary" onclick="goStep(1)">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="goStep(3)">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: INCIDENT INFO ──────────────────────────────────────────── -->
+    <div class="step-panel" id="step3">
+      <p class="step-indicator">STEP 3 OF 4 — Incident Information</p>
+
+      <div class="section-divider">Vehicles &amp; Injuries</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Number of Vehicles Involved <span>*required</span></label>
+          <select name="number_of_vehicles_involved" id="number_of_vehicles_involved" required>
+            <option value="" disabled selected>Select</option>
+            <option value="1">1 Vehicle</option>
+            <option value="2">2 Vehicles</option>
+            <option value="3">3 Vehicles</option>
+            <option value="4">4+ Vehicles</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bodily Injuries <span>*required</span></label>
+          <select name="bodily_injuries" id="bodily_injuries" required>
+            <option value="" disabled selected>Select</option>
+            <option value="0">0 — None</option>
+            <option value="1">1 Injury</option>
+            <option value="2">2+ Injuries</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Witnesses <span>*required</span></label>
+          <select name="witnesses" id="witnesses" required>
+            <option value="" disabled selected>Select</option>
+            <option value="0">0 — No Witnesses</option>
+            <option value="1">1 Witness</option>
+            <option value="2">2 Witnesses</option>
+            <option value="3">3+ Witnesses</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Evidence &amp; Authorities</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Property Damage Reported</label>
+          <select name="property_damage" id="property_damage">
+            <option value="?">Unknown</option>
+            <option value="YES">Yes</option>
+            <option value="NO">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Police Report Available</label>
+          <select name="police_report_available" id="police_report_available">
+            <option value="?">Unknown</option>
+            <option value="YES">Yes</option>
+            <option value="NO">No</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Authorities Contacted</label>
+          <select name="authorities_contacted" id="authorities_contacted">
+            <option value="Police">Police</option>
+            <option value="Fire">Fire Dept</option>
+            <option value="Ambulance">Ambulance</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-divider">Vehicle</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Vehicle Make <span>*required</span></label>
+          <select name="auto_make" id="auto_make" required>
+            <option value="" disabled selected>Select make</option>
+            <option value="Accura">Acura</option>
+            <option value="Audi">Audi</option>
+            <option value="BMW">BMW</option>
+            <option value="Chevrolet">Chevrolet</option>
+            <option value="Dodge">Dodge</option>
+            <option value="Ford">Ford</option>
+            <option value="Honda">Honda</option>
+            <option value="Mercedes">Mercedes</option>
+            <option value="Nissan">Nissan</option>
+            <option value="Saab">Saab</option>
+            <option value="Suburu">Subaru</option>
+            <option value="Toyota">Toyota</option>
+            <option value="Volkswagen">Volkswagen</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vehicle Year <span>*required</span></label>
+          <input type="number" name="auto_year" id="auto_year"
+                 placeholder="e.g. 2012" min="1990" max="2026" required>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button type="button" class="btn btn-secondary" onclick="goStep(2)">&larr; Back</button>
+        <button type="button" class="btn btn-primary" onclick="goStep(4)">Review Claim &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: REVIEW ─────────────────────────────────────────────────── -->
+    <div class="step-panel" id="step4">
+      <p class="step-indicator">STEP 4 OF 4 — Review &amp; Analyze</p>
+
+      <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.5rem;">
+        Please confirm the claim details before running the analysis.
+      </p>
+
+      <table class="review-table" id="reviewTable">
+        <tbody>
+          <tr><td>Total Claim Amount</td><td id="rv_total_claim_amount">—</td></tr>
+          <tr><td>Accident Type</td><td id="rv_incident_type">—</td></tr>
+          <tr><td>Incident Severity</td><td id="rv_incident_severity">—</td></tr>
+          <tr><td>Collision Type</td><td id="rv_collision_type">—</td></tr>
+          <tr><td>Customer Age</td><td id="rv_age">—</td></tr>
+          <tr><td>Months as Customer</td><td id="rv_months_as_customer">—</td></tr>
+          <tr><td>Coverage Limit</td><td id="rv_policy_csl">—</td></tr>
+          <tr><td>Annual Premium</td><td id="rv_policy_annual_premium">—</td></tr>
+          <tr><td>Witnesses</td><td id="rv_witnesses">—</td></tr>
+          <tr><td>Police Report</td><td id="rv_police_report_available">—</td></tr>
+          <tr><td>Vehicle</td><td id="rv_vehicle">—</td></tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:.78rem;color:var(--text-muted);margin-top:1rem;">
+        <em>Note: 11 non-sensitive features use statistical defaults from the training population
+        (e.g., hobbies, occupation) and are not collected from the user.</em>
+      </p>
+
+      <div style="margin-top:2rem;">
+        <button type="submit" class="btn btn-success" id="analyzeBtn">
+          ⚡ Analyze Claim
+        </button>
+      </div>
+
+      <div class="step-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-secondary" onclick="goStep(3)">&larr; Back</button>
+        <span></span>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<div class="disclaimer">
+  Risk predictions are generated by a machine learning model and are intended to support claim review.
+  A high-risk prediction does not prove insurance fraud.
+</div>
+
+<script>
+  let currentStep = 1;
+
+  function goStep(n) {
+    // Validate current step before advancing
+    if (n > currentStep) {
+      const panel = document.getElementById('step' + currentStep);
+      const required = panel.querySelectorAll('[required]');
+      let valid = true;
+      required.forEach(el => {
+        el.style.borderColor = '';
+        if (!el.value || el.value.trim() === '') {
+          el.style.borderColor = 'var(--danger)';
+          valid = false;
+        }
+      });
+      if (!valid) {
+        return;
+      }
+    }
+
+    // Hide current
+    document.getElementById('step' + currentStep).classList.remove('active');
+    document.querySelectorAll('.step-tab')[currentStep - 1].classList.remove('active');
+    document.querySelectorAll('.step-tab')[currentStep - 1].classList.add('done');
+
+    currentStep = n;
+
+    // If going back, remove done from current
+    document.querySelectorAll('.step-tab').forEach((tab, i) => {
+      if (i >= currentStep - 1) tab.classList.remove('done');
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.step-tab')[currentStep - 1].classList.add('active');
+    document.getElementById('step' + currentStep).classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+
+    if (n === 4) buildReview();
+  }
+
+  function buildReview() {
+    const ids = ['total_claim_amount','incident_type','incident_severity','collision_type',
+                 'age','months_as_customer','policy_csl','policy_annual_premium',
+                 'witnesses','police_report_available'];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      const rv = document.getElementById('rv_' + id);
+      if (el && rv) {
+        let val = el.value || '—';
+        if (id === 'total_claim_amount' && val !== '—') val = '$' + Number(val).toLocaleString();
+        if (id === 'policy_annual_premium' && val !== '—') val = '$' + Number(val).toLocaleString();
+        rv.textContent = val;
+      }
+    });
+    const make = document.getElementById('auto_make').value || '';
+    const year = document.getElementById('auto_year').value || '';
+    document.getElementById('rv_vehicle').textContent = `${year} ${make}`.trim() || '—';
+  }
+
+  // Loading state on submit
+  document.getElementById('analyzeBtn').addEventListener('click', function() {
+    setTimeout(() => {
+      this.textContent = '⏳ Analyzing...';
+      this.disabled = true;
+    }, 50);
+  });
+</script>
+</body>
+</html>

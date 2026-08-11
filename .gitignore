@@ -1,5 +1,50 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
 .ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Model artifacts (regenerate with: python src/save_final_model.py)
+# Uncomment below if you do NOT want to commit large model files:
+# model/*.pkl
+
+# Data (raw dataset — keep committed for reproducibility)
+# data/raw/*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Flask
+instance/
+*.pyc
+
+# Logs
+*.log
+
+# Temp / scratch
+scratch/
+tmp/

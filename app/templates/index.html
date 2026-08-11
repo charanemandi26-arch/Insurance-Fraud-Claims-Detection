@@ -1,272 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Fraud Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Insurance Fraud Claims Engine</title>
+  <meta name="description" content="AI-powered insurance claim fraud risk assessment platform.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Insurance Fraud Claims Engine</h1>
-            <p class="subtitle">ML-Based Claim Risk Assessment</p>
-        </header>
 
-        <form action="/predict" method="POST" class="card">
-            
-            <h2 class="section-title">Policy & Insured Details</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Months as Customer</label>
-                    <input type="number" name="months_as_customer" value="228" required>
-                </div>
-                <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" name="age" value="42" required>
-                </div>
-                <div class="form-group">
-                    <label>Policy State</label>
-                    <select name="policy_state">
-                        <option value="OH">OH</option>
-                        <option value="IN">IN</option>
-                        <option value="IL">IL</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Policy CSL</label>
-                    <select name="policy_csl">
-                        <option value="250/500">250/500</option>
-                        <option value="100/300">100/300</option>
-                        <option value="500/1000">500/1000</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Policy Deductable</label>
-                    <input type="number" name="policy_deductable" value="1000" required>
-                </div>
-                <div class="form-group">
-                    <label>Annual Premium ($)</label>
-                    <input type="number" step="0.01" name="policy_annual_premium" value="1406.91" required>
-                </div>
-                <div class="form-group">
-                    <label>Umbrella Limit</label>
-                    <input type="number" name="umbrella_limit" value="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Insured Zip</label>
-                    <input type="number" name="insured_zip" value="466132" required>
-                </div>
-                <div class="form-group">
-                    <label>Insured Sex</label>
-                    <select name="insured_sex">
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Education Level</label>
-                    <select name="insured_education_level">
-                        <option value="MD">MD</option>
-                        <option value="PhD">PhD</option>
-                        <option value="Associate">Associate</option>
-                        <option value="Masters">Masters</option>
-                        <option value="High School">High School</option>
-                        <option value="College">College</option>
-                        <option value="JD">JD</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Occupation</label>
-                    <select name="insured_occupation">
-                        <option value="machine-op-inspct">Machine Op</option>
-                        <option value="prof-specialty">Professional</option>
-                        <option value="tech-support">Tech Support</option>
-                        <option value="exec-managerial">Managerial</option>
-                        <option value="sales">Sales</option>
-                        <option value="craft-repair">Craft Repair</option>
-                        <option value="transport-moving">Transport</option>
-                        <option value="other-service">Other Service</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Hobbies</label>
-                    <select name="insured_hobbies">
-                        <option value="reading">Reading</option>
-                        <option value="chess">Chess</option>
-                        <option value="cross-fit">Cross Fit</option>
-                        <option value="sleeping">Sleeping</option>
-                        <option value="board-games">Board Games</option>
-                        <option value="camping">Camping</option>
-                        <option value="golf">Golf</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Relationship</label>
-                    <select name="insured_relationship">
-                        <option value="husband">Husband</option>
-                        <option value="wife">Wife</option>
-                        <option value="own-child">Own Child</option>
-                        <option value="unmarried">Unmarried</option>
-                        <option value="other-relative">Other Relative</option>
-                        <option value="not-in-family">Not in Family</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Capital Gains</label>
-                    <input type="number" name="capital-gains" value="53300" required>
-                </div>
-                <div class="form-group">
-                    <label>Capital Loss</label>
-                    <input type="number" name="capital-loss" value="0" required>
-                </div>
-            </div>
+<nav class="topnav">
+  <a href="/" class="nav-brand">
+    <span class="shield">🛡</span>
+    <span>Fraud Claims Engine</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" class="active">Dashboard</a></li>
+    <li><a href="/assess">Assess Claim</a></li>
+  </ul>
+</nav>
 
-            <h2 class="section-title">Incident Details</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Incident Type</label>
-                    <select name="incident_type">
-                        <option value="Single Vehicle Collision">Single Vehicle Collision</option>
-                        <option value="Multi-vehicle Collision">Multi-vehicle Collision</option>
-                        <option value="Vehicle Theft">Vehicle Theft</option>
-                        <option value="Parked Car">Parked Car</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Collision Type</label>
-                    <select name="collision_type">
-                        <option value="Side Collision">Side Collision</option>
-                        <option value="Rear Collision">Rear Collision</option>
-                        <option value="Front Collision">Front Collision</option>
-                        <option value="?">Unknown</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Incident Severity</label>
-                    <select name="incident_severity">
-                        <option value="Major Damage">Major Damage</option>
-                        <option value="Minor Damage">Minor Damage</option>
-                        <option value="Total Loss">Total Loss</option>
-                        <option value="Trivial Damage">Trivial Damage</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Authorities Contacted</label>
-                    <select name="authorities_contacted">
-                        <option value="Police">Police</option>
-                        <option value="Fire">Fire</option>
-                        <option value="Ambulance">Ambulance</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Incident State</label>
-                    <select name="incident_state">
-                        <option value="SC">SC</option>
-                        <option value="VA">VA</option>
-                        <option value="NY">NY</option>
-                        <option value="OH">OH</option>
-                        <option value="WV">WV</option>
-                        <option value="NC">NC</option>
-                        <option value="PA">PA</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Incident City</label>
-                    <select name="incident_city">
-                        <option value="Columbus">Columbus</option>
-                        <option value="Arlington">Arlington</option>
-                        <option value="Springfield">Springfield</option>
-                        <option value="Riverwood">Riverwood</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Hour of the Day</label>
-                    <input type="number" name="incident_hour_of_the_day" value="5" min="0" max="23" required>
-                </div>
-                <div class="form-group">
-                    <label>Number of Vehicles</label>
-                    <input type="number" name="number_of_vehicles_involved" value="1" required>
-                </div>
-                <div class="form-group">
-                    <label>Property Damage</label>
-                    <select name="property_damage">
-                        <option value="YES">Yes</option>
-                        <option value="NO">No</option>
-                        <option value="?">Unknown</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Bodily Injuries</label>
-                    <input type="number" name="bodily_injuries" value="1" required>
-                </div>
-                <div class="form-group">
-                    <label>Witnesses</label>
-                    <input type="number" name="witnesses" value="2" required>
-                </div>
-                <div class="form-group">
-                    <label>Police Report Available</label>
-                    <select name="police_report_available">
-                        <option value="YES">Yes</option>
-                        <option value="NO">No</option>
-                        <option value="?">Unknown</option>
-                    </select>
-                </div>
-            </div>
+<div class="container">
 
-            <h2 class="section-title">Claim & Vehicle Details</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Total Claim Amount</label>
-                    <input type="number" name="total_claim_amount" value="71610" required>
-                </div>
-                <div class="form-group">
-                    <label>Injury Claim</label>
-                    <input type="number" name="injury_claim" value="6510" required>
-                </div>
-                <div class="form-group">
-                    <label>Property Claim</label>
-                    <input type="number" name="property_claim" value="13020" required>
-                </div>
-                <div class="form-group">
-                    <label>Vehicle Claim</label>
-                    <input type="number" name="vehicle_claim" value="52080" required>
-                </div>
-                <div class="form-group">
-                    <label>Auto Make</label>
-                    <select name="auto_make">
-                        <option value="Saab">Saab</option>
-                        <option value="Mercedes">Mercedes</option>
-                        <option value="Dodge">Dodge</option>
-                        <option value="Chevrolet">Chevrolet</option>
-                        <option value="Nissan">Nissan</option>
-                        <option value="Ford">Ford</option>
-                        <option value="Toyota">Toyota</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Auto Model</label>
-                    <select name="auto_model">
-                        <option value="92x">92x</option>
-                        <option value="RAM">RAM</option>
-                        <option value="Civic">Civic</option>
-                        <option value="Camry">Camry</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Auto Year</label>
-                    <input type="number" name="auto_year" value="2004" required>
-                </div>
-            </div>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">AI-Powered Assessment</div>
+    <h1>Insurance Fraud<br><em>Detection Engine</em></h1>
+    <p>
+      A machine learning system trained on real insurance claim data
+      to identify elevated fraud risk and support claims investigators.
+    </p>
+    <a href="/assess" class="btn btn-primary">Start Claim Assessment &rarr;</a>
+  </div>
 
-            <button type="submit" class="submit-btn">Run Risk Assessment Prediction</button>
-        </form>
 
-        <p class="disclaimer">
-            Disclaimer: This is an academic project prototype. The prediction represents statistical risk modeling 
-            and is designed as a decision-support tool, not as absolute proof of fraud.
-        </p>
+
+  <!-- ── HOW IT WORKS – compact horizontal flow ── -->
+  <section class="hiw-section">
+    <p class="hiw-eyebrow">HOW IT WORKS</p>
+    <div class="hiw-flow">
+
+      <div class="hiw-step">
+        <div class="hiw-icon">📋</div>
+        <div class="hiw-num">①</div>
+        <div class="hiw-title">Enter Claim</div>
+        <div class="hiw-desc">Provide relevant insurance claim details.</div>
+      </div>
+
+      <div class="hiw-connector"><span>→</span></div>
+
+      <div class="hiw-step">
+        <div class="hiw-icon">🧠</div>
+        <div class="hiw-num">②</div>
+        <div class="hiw-title">AI Analysis</div>
+        <div class="hiw-desc">The trained machine learning model analyzes the claim.</div>
+      </div>
+
+      <div class="hiw-connector"><span>→</span></div>
+
+      <div class="hiw-step">
+        <div class="hiw-icon">📊</div>
+        <div class="hiw-num">③</div>
+        <div class="hiw-title">Fraud Risk Score</div>
+        <div class="hiw-desc">The model generates a probability-based risk score.</div>
+      </div>
+
+      <div class="hiw-connector"><span>→</span></div>
+
+      <div class="hiw-step">
+        <div class="hiw-icon">🛡</div>
+        <div class="hiw-num">④</div>
+        <div class="hiw-title">Review Recommendation</div>
+        <div class="hiw-desc">The system recommends whether the claim needs further review.</div>
+      </div>
+
     </div>
+  </section>
+
+  <!-- Model Stats -->
+  <div class="stats-row">
+    <div class="card stat-card">
+      <div class="stat-label">Model</div>
+      <div class="stat-value" style="font-size:1.1rem;">{{ metrics.model_name }}</div>
+      <div class="stat-sub">Classification Algorithm</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">ROC-AUC Score</div>
+      <div class="stat-value">{{ metrics.roc_auc }}</div>
+      <div class="stat-sub">Discrimination Ability</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-label">F1 Score</div>
+      <div class="stat-value">{{ metrics.f1 }}</div>
+      <div class="stat-sub">Precision × Recall Balance</div>
+    </div>
+  </div>
+
+  <!-- ML Pipeline explainer -->
+  <div class="card pipeline-card">
+    <div class="pipeline-left">
+      <p class="pipeline-title">How the Model Processes Your Input</p>
+      <p class="pipeline-sub">
+        You provide <strong>22 claim details</strong>. The system adds <strong>11 supporting values</strong>
+        from the training population, producing <strong>33 inputs</strong> that are automatically
+        transformed into 157 model-ready signals before analysis.
+      </p>
+      <p class="pipeline-sub" style="margin-top:.5rem;">
+        Trained on 1,000 historical auto insurance claims &nbsp;·&nbsp;
+        Accuracy&nbsp;<strong>{{ metrics.accuracy }}</strong>&nbsp;·&nbsp;
+        Recall&nbsp;<strong>{{ metrics.recall }}</strong>&nbsp;·&nbsp;
+        ROC-AUC&nbsp;<strong>{{ metrics.roc_auc }}</strong>
+      </p>
+    </div>
+    <div class="pipeline-right">
+      <div class="pipeline-flow">
+        <span class="pf-node">Your Input</span>
+        <span class="pf-arrow">↓</span>
+        <span class="pf-node">Validation</span>
+        <span class="pf-arrow">↓</span>
+        <span class="pf-node">Feature Processing</span>
+        <span class="pf-arrow">↓</span>
+        <span class="pf-node pf-accent">Random Forest</span>
+        <span class="pf-arrow">↓</span>
+        <span class="pf-node">Fraud Probability</span>
+        <span class="pf-arrow">↓</span>
+        <span class="pf-node pf-highlight">Risk Level</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="disclaimer">
+  Risk predictions are generated by a machine learning model and are intended to support claim review.
+  A high-risk prediction does not prove insurance fraud and should never be used as the sole reason to deny a claim.
+</div>
+
 </body>
 </html>
