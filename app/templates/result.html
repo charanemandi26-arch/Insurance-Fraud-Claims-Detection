@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result | Fraud Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 600px; padding-top: 5rem;">
+        
+        <div class="card result-card">
+            
+            {% if error %}
+                <h2 style="color: var(--danger); margin-bottom: 1rem;">System Error</h2>
+                <p>{{ error }}</p>
+                <a href="/" class="back-btn" style="margin-top: 2rem;">Return to Form</a>
+            {% else %}
+                <h2 style="margin-bottom: 2rem; font-weight: 600; color: var(--text-muted);">Assessment Complete</h2>
+                
+                <div class="risk-level risk-{{ risk_class }}">
+                    {{ risk_level }}
+                </div>
+                
+                <div class="probability">
+                    {{ probability }}
+                </div>
+                
+                <p style="margin-bottom: 2rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">
+                    Predicted Fraud Probability
+                </p>
+                
+                <div class="recommendation">
+                    <strong>Recommendation:</strong><br>
+                    {{ recommendation }}
+                </div>
+                
+                <a href="/" class="back-btn">Evaluate Another Claim</a>
+            {% endif %}
+            
+        </div>
+        
+    </div>
+</body>
+</html>
