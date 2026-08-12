@@ -1,59 +1,102 @@
 import sys
 import os
 
-# Add app to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'app'))
+# Add app directory to path so we can import the Flask app
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'app'))
 from app import app
 
-def run_tests():
-    client = app.test_client()
-    
-    base_payload = {
-        'months_as_customer': '228', 'age': '42', 'policy_state': 'OH', 'policy_csl': '250/500',
-        'policy_deductable': '1000', 'policy_annual_premium': '1406.91', 'umbrella_limit': '0',
-        'insured_zip': '466132', 'insured_sex': 'MALE', 'insured_education_level': 'MD',
-        'insured_occupation': 'machine-op-inspct', 'insured_hobbies': 'reading',
-        'insured_relationship': 'husband', 'capital-gains': '53300', 'capital-loss': '0',
-        'incident_type': 'Single Vehicle Collision', 'collision_type': 'Side Collision',
-        'incident_severity': 'Minor Damage', 'authorities_contacted': 'Police',
-        'incident_state': 'SC', 'incident_city': 'Columbus', 'incident_hour_of_the_day': '5',
-        'number_of_vehicles_involved': '1', 'property_damage': 'YES', 'bodily_injuries': '1',
-        'witnesses': '2', 'police_report_available': 'YES', 'total_claim_amount': '71610',
-        'injury_claim': '6510', 'property_claim': '13020', 'vehicle_claim': '52080',
-        'auto_make': 'Saab', 'auto_model': '92x', 'auto_year': '2004'
-    }
+# Minimal valid payload — exactly the 22 model columns the backend expects
+BASE_PAYLOAD = {
+    # Numerical
+    'months_as_customer': '228',
+    'age': '42',
+    'policy_deductable': '1000',
+    'policy_annual_premium': '1406.91',
+    'umbrella_limit': '0',
+    'incident_hour_of_the_day': '5',
+    'number_of_vehicles_involved': '1',
+    'bodily_injuries': '1',
+    'witnesses': '2',
+    'total_claim_amount': '71610',
+    'injury_claim': '6510',
+    'property_claim': '13020',
+    'vehicle_claim': '52080',
+    'auto_year': '2004',
+    # Categorical
+    'policy_csl': '250/500',
+    'incident_type': 'Single Vehicle Collision',
+    'collision_type': 'Side Collision',
+    'incident_severity': 'Minor Damage',
+    'authorities_contacted': 'Police',
+    'property_damage': 'YES',
+    'police_report_available': 'YES',
+    'auto_make': 'Saab',
+}
 
-    print("TC01 - Valid ordinary claim:")
-    res = client.post('/predict', data=base_payload)
-    print("Outcome:", "RISK" in res.get_data(as_text=True))
-    
-    print("\nTC02 - Potentially suspicious claim:")
-    suspicious = base_payload.copy()
-    suspicious['incident_severity'] = 'Major Damage'
-    suspicious['total_claim_amount'] = '112000'
-    suspicious['witnesses'] = '0'
-    suspicious['authorities_contacted'] = 'Other'
-    res = client.post('/predict', data=suspicious)
-    print("Outcome:", "RISK" in res.get_data(as_text=True))
-    
-    print("\nTC03 - Missing input:")
-    missing = base_payload.copy()
+def run_tests():
+    client  = app.test_client()
+    passed  = 0
+    total   = 5
+
+    # TC01 — Valid ordinary claim: expect a RISK level in the result
+    print('TC01 - Valid ordinary claim:')
+    res  = client.post('/predict', data=BASE_PAYLOAD)
+    body = res.get_data(as_text=True)
+    ok   = 'RISK' in body and res.status_code == 200
+    print(f'  Status: {res.status_code}  |  RISK in response: {"RISK" in body}  |  {"PASS" if ok else "FAIL"}')
+    if ok: passed += 1
+
+    # TC02 — Suspicious-looking claim: should still return a RISK level (HIGH expected)
+    print('\nTC02 - Suspicious-looking claim:')
+    suspicious = BASE_PAYLOAD.copy()
+    suspicious.update({
+        'incident_severity': 'Major Damage',
+        'total_claim_amount': '112000',
+        'witnesses': '0',
+        'police_report_available': 'NO',
+        'authorities_contacted': 'Other',
+    })
+    res  = client.post('/predict', data=suspicious)
+    body = res.get_data(as_text=True)
+    ok   = 'RISK' in body and res.status_code == 200
+    print(f'  Status: {res.status_code}  |  RISK in response: {"RISK" in body}  |  {"PASS" if ok else "FAIL"}')
+    if ok: passed += 1
+
+    # TC03 — Missing required field: expect user-friendly error, no traceback
+    print('\nTC03 - Missing required field (age removed):')
+    missing = BASE_PAYLOAD.copy()
     del missing['age']
-    res = client.post('/predict', data=missing)
-    print("Outcome:", "System Error" in res.get_data(as_text=True))
-    
-    print("\nTC04 - Invalid input:")
-    invalid = base_payload.copy()
-    invalid['age'] = 'text_instead_of_number'
-    res = client.post('/predict', data=invalid)
-    print("Outcome:", "System Error" in res.get_data(as_text=True))
-    
-    print("\nTC05 - Boundary/edge input:")
-    boundary = base_payload.copy()
+    res  = client.post('/predict', data=missing)
+    body = res.get_data(as_text=True)
+    ok   = res.status_code == 200 and 'error' in body.lower()
+    print(f'  Status: {res.status_code}  |  Error message shown: {ok}  |  {"PASS" if ok else "FAIL"}')
+    if ok: passed += 1
+
+    # TC04 — Invalid numeric input (text in age field): expect user-friendly error
+    print('\nTC04 - Invalid numeric input (age = notanumber):')
+    invalid = BASE_PAYLOAD.copy()
+    invalid['age'] = 'notanumber'
+    res  = client.post('/predict', data=invalid)
+    body = res.get_data(as_text=True)
+    ok   = res.status_code == 200 and 'error' in body.lower()
+    print(f'  Status: {res.status_code}  |  Error message shown: {ok}  |  {"PASS" if ok else "FAIL"}')
+    if ok: passed += 1
+
+    # TC05 — Out-of-range age triggers range validation
+    print('\nTC05 - Age out-of-range boundary (age=150):')
+    boundary = BASE_PAYLOAD.copy()
     boundary['age'] = '150'
-    boundary['total_claim_amount'] = '99999999'
-    res = client.post('/predict', data=boundary)
-    print("Outcome:", "RISK" in res.get_data(as_text=True))
+    res  = client.post('/predict', data=boundary)
+    body = res.get_data(as_text=True)
+    ok   = res.status_code == 200 and 'error' in body.lower()
+    print(f'  Status: {res.status_code}  |  Validation error shown: {ok}  |  {"PASS" if ok else "FAIL"}')
+    if ok: passed += 1
+
+    print(f'\n{"="*40}')
+    print(f'  Results: {passed}/{total} tests passed')
+    print(f'{"="*40}')
+    return passed == total
+
 
 if __name__ == '__main__':
     run_tests()
