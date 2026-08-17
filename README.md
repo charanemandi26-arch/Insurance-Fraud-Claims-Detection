@@ -2,7 +2,10 @@
 
 An end-to-end Machine Learning solution to assess the risk of auto insurance claims, featuring a trained Random Forest model served through a clean Flask web application.
 
+🌐 **Live Web Application:** [https://insurance-fraud-detection-b8k5.onrender.com](https://insurance-fraud-detection-b8k5.onrender.com)
+
 ![App Screenshot](screenshot.png)
+
 
 ---
 
